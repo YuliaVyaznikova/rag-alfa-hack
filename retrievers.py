@@ -93,9 +93,30 @@ def aggregate_by_web_id(
 ) -> List[Tuple[str, float]]:
     page_scores: Dict[str, float] = {}
     for idx, score in indices_scores.items():
-        web = metas[idx].web_id
-        if web not in page_scores or score > page_scores[web]:
-            page_scores[web] = score
+        meta = metas[idx]
+        web = meta.web_id
+
+        base_score = score
+
+        title_lower = (meta.title or "").lower()
+        url_lower = (meta.url or "").lower()
+        kind_lower = (meta.kind or "").lower()
+
+        penalty = 1.0
+        if (
+            ".pdf" in title_lower
+            or ".pdf" in url_lower
+            or "dogovor" in title_lower
+            or "договор" in title_lower
+            or "политик" in title_lower
+            or kind_lower in {"pdf", "doc", "docx"}
+        ):
+            penalty = 0.3
+
+        adjusted_score = base_score * penalty
+
+        if web not in page_scores or adjusted_score > page_scores[web]:
+            page_scores[web] = adjusted_score
     ranked_pages = sorted(page_scores.items(), key=lambda x: x[1], reverse=True)
     return ranked_pages[:top_pages]
 
