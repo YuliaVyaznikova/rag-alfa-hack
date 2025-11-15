@@ -5,3 +5,5 @@
 *.index
 *.parquet
 submit.csv
+__pycache__/
+*.pyc
