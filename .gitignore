@@ -1,0 +1,9 @@
+/.venv_rag/
+/index_out/
+*.csv
+*.pkl
+*.index
+*.parquet
+submit.csv
+__pycache__/
+*.pyc
