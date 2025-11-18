@@ -9,7 +9,7 @@ def load_data(questions_csv: str, submit_csv: str, websites_csv: str):
     sdf = pd.read_csv(submit_csv)
     wdf = pd.read_csv(websites_csv)
 
-    wdf["web_id"] = wdf["web_id"].astype(str)
+    wdf["web_id"] = wdf["web_id"].astype(int).astype(str)
     w_index = wdf.set_index("web_id")
 
     return qdf, sdf, w_index
@@ -40,7 +40,7 @@ def show_samples(qdf, sdf, w_index, num_samples: int = 5, wrap: int = 120):
             web_id = row[col]
             if pd.isna(web_id) or web_id == "":
                 continue
-            web_id_str = str(web_id)
+            web_id_str = str(int(float(web_id)))
             print("-" * 40)
             print(f"#{i}: web_id = {web_id_str}")
             if web_id_str in w_index.index:

@@ -34,12 +34,22 @@ def rerank_and_select(
     scores = cross_encoder.predict(pairs, batch_size=64, show_progress_bar=False)
     web_best: dict = {}
     for idx, s in zip(chunk_indices, scores):
-        web_id = retriever.faiss_ret.metas[idx].web_id
+        meta = retriever.faiss_ret.metas[idx]
+        title = (meta.title or "").lower()
+        url = (meta.url or "").lower()
+        kind = (meta.kind or "").lower()
+
+        if (".pdf" in title or ".pdf" in url
+            or "dogovor" in title or "договор" in title
+            or "политик" in title
+            or kind in {"pdf", "doc", "docx"}):
+            continue
+
+        web_id = int(meta.web_id)
         if web_id not in web_best or s > web_best[web_id]:
             web_best[web_id] = float(s)
     top_pages = sorted(web_best.items(), key=lambda x: x[1], reverse=True)[:pages_out]
-    return [w for w, _ in top_pages]
-
+    return [str(int(w)) for w, _ in top_pages]
 
 def main():
     parser = argparse.ArgumentParser()
@@ -85,10 +95,12 @@ def main():
         if args.format == "wide":
             row_out = {"q_id": q_id}
             for i in range(args.pages_out):
-                row_out[f"web_id_{i+1}"] = web_ids[i] if i < len(web_ids) else ""
+                web_id = str(int(web_ids[i])) if i < len(web_ids) and web_ids[i] else ""
+                row_out[f"web_id_{i+1}"] = web_id
             rows.append(row_out)
         else:
-            rows.append({"q_id": q_id, "web_ids": " ".join(web_ids)})
+            web_ids_clean = [str(int(w)) for w in web_ids if w]
+            rows.append({"q_id": q_id, "web_ids": " ".join(web_ids_clean)})
 
     odf = pd.DataFrame(rows)
     odf.to_csv(args.out_csv, index=False)

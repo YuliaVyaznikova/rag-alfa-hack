@@ -102,7 +102,6 @@ def aggregate_by_web_id(
         url_lower = (meta.url or "").lower()
         kind_lower = (meta.kind or "").lower()
 
-        penalty = 1.0
         if (
             ".pdf" in title_lower
             or ".pdf" in url_lower
@@ -111,9 +110,9 @@ def aggregate_by_web_id(
             or "политик" in title_lower
             or kind_lower in {"pdf", "doc", "docx"}
         ):
-            penalty = 0.3
+            continue
 
-        adjusted_score = base_score * penalty
+        adjusted_score = base_score
 
         if web not in page_scores or adjusted_score > page_scores[web]:
             page_scores[web] = adjusted_score

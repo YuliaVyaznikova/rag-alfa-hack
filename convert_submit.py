@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv("submit.csv")
+df = pd.read_csv("submit_strange_format.csv")
 
 
 def make_list(row):
@@ -19,4 +19,4 @@ out = pd.DataFrame(
     }
 )
 
-out.to_csv("submit_for_platform.csv", index=False)
+out.to_csv("submit_NEW.csv", index=False)
